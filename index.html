@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NihongoDev - </title>
+    <style>
+        /* --- RESET & GLOBAL VARIABLES --- */
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-color: #4CAF50; /* Hijau Aksen */
+            --primary-hover: #45a049;
+            --accent-color: #ff9800;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --border-color: #333333;
+            --card-bg: #252525;
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --font-jp: 'Noto Sans JP', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow-x: hidden; /* Mencegah scroll ke kiri/kanan */
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1, h2, h3 { font-weight: 700; }
+        .jp-text { font-family: var(--font-jp); }
+        
+        /* --- UTILITIES --- */
+        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- LAYOUT CONTAINERS --- */
+        #welcome-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        #main-app {
+            display: none; /* Hidden initially */
+            flex-direction: column;
+            min-height: 100vh;
+            max-width: 600px; /* Mobile view constraint on desktop */
+            margin: 0 auto;
+            background-color: var(--bg-color);
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        /* --- WELCOME SCREEN COMPONENTS --- */
+        .welcome-logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .welcome-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        .welcome-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .btn {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s, opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn:active { transform: scale(0.98); }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn-secondary {
+            background-color: var(--surface-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-accent {
+            background-color: #25D366; /* WA Color */
+            color: white;
+        }
+
+        /* --- MAIN APP HEADER --- */
+        header {
+            padding: 1rem;
+            background-color: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .app-brand {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .app-brand span { color: var(--primary-color); }
+
+        /* --- SEARCH BAR --- */
+        .search-container {
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            padding-left: 40px;
+            background-color: #2c2c2c;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus { border-color: var(--primary-color); }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        /* --- CATEGORY PILLS (UPDATED LAYOUT) --- */
+        /* Mengubah dari scroll horizontal menjadi Grid (Wrap) */
+        .category-nav {
+            display: flex;
+            flex-wrap: wrap; /* Tombol akan turun ke bawah jika tidak muat */
+            gap: 8px;
+            padding: 12px;
+            background-color: var(--bg-color);
+            border-bottom: 1px solid var(--border-color);
+            justify-content: flex-start; /* Rata kiri */
+        }
+
+        .cat-pill {
+            padding: 8px 16px;
+            background-color: var(--surface-color);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            flex: 0 0 auto; /* Agar tombol tidak melebar terlalu banyak */
+        }
+
+        .cat-pill.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        /* --- VOCABULARY LIST --- */
+        .vocab-list {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-bottom: 80px; /* Space for footer */
+        }
+
+        .vocab-card {
+            background-color: var(--card-bg);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            transition: transform 0.1s;
+        }
+        
+        .vocab-card:active {
+            transform: scale(0.99);
+        }
+
+        .vocab-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .vocab-kanji {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            line-height: 1.3;
+        }
+
+        .vocab-hiragana {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        .vocab-romaji {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-bottom: 4px;
+        }
+
+        .vocab-meaning {
+            font-size: 1rem;
+            color: #e0e0e0;
+            border-top: 1px solid #333;
+            padding-top: 8px;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+        
+        .vocab-tag {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background-color: #333;
+            color: #aaa;
+            align-self: flex-start;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #555;
+            border-top: 1px solid var(--border-color);
+            margin-top: auto;
+            background-color: var(--bg-color);
+        }
+
+        /* --- RESPONSIVE ADJUSTMENTS --- */
+        @media (max-width: 600px) {
+            #main-app {
+                border: none;
+                max-width: 100%;
+            }
+            .category-nav {
+                justify-content: center; /* Di HP rata tengah biar rapi */
+            }
+            .welcome-title { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HALAMAN SELAMAT DATANG -->
+    <div id="welcome-screen">
+        <div class="welcome-logo">🇯🇵</div>
+        <h1 class="welcome-title">Selamat datang kawan</h1>
+        <p class="welcome-subtitle">Belajar lah yang sungguh-sungguh bro, bayangkan impian lo</p>
+        
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="enterApp()">
+                Ayo gas Belajar
+            </button>
+            <a href="https://saweria.co/NihongoDev" target="_blank" class="btn btn-secondary">
+                Dukungannya bre
+            </a>
+            <a href="https://whatsapp.com/channel/0029VbCcVTx7dmeXel4tue38" target="_blank" class="btn btn-accent">
+                Masuk Saluran WhatsApp bre
+            </a>
+        </div>
+    </div>
+
+    <!-- APLIKASI UTAMA -->
+    <div id="main-app">
+        <header>
+            <div class="app-brand">
+                NihongoDev <span>🌌☕</span>
+            </div>
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" class="search-input" placeholder="Cari kata di sini">
+            </div>
+        </header>
+
+        <!-- NAVIGASI KATEGORI (GRID / WRAP) -->
+        <nav class="category-nav" id="categoryContainer">
+            <button class="cat-pill active" onclick="filterCategory('Semua')">Semua</button>
+            <button class="cat-pill" onclick="filterCategory('Kata Kerja')">Kata Kerja</button>
+            <button class="cat-pill" onclick="filterCategory('Kata Sifat')">Kata Sifat</button>
+            <button class="cat-pill" onclick="filterCategory('Kata Benda')">Kata Benda</button>
+            <button class="cat-pill" onclick="filterCategory('Sapaan')">Sapaan</button>
+            <button class="cat-pill" onclick="filterCategory('Lainnya')">Lainnya</button>
+        </nav>
+
+        <main class="vocab-list" id="vocabList">
+            <!-- Item akan di-generate oleh JavaScript -->
+        </main>
+
+        <footer>
+            &copy; NihongoDev. Belajar Bahasa Jepang.
+        </footer>
+    </div>
+
+    <script>
+        // --- DATABASE KOSAKATA (DATA LENGKAP) ---
+        const rawVocabulary = [
+            // --- SAPAAN (Greetings) ---
+            { k: "おはようございます", h: "おはようございます", r: "Ohayou gozaimasu", i: "Selamat pagi (sopan)", c: "Sapaan" },
+            { k: "おはよう", h: "おはよう", r: "Ohayou", i: "Selamat pagi (kasual)", c: "Sapaan" },
+            { k: "こんにちは", h: "こんにちは", r: "Konnichiwa", i: "Selamat siang/sore, Halo", c: "Sapaan" },
+            { k: "どうも", h: "どうも", r: "Doumo", i: "Halo", c: "Sapaan" },
+            { k: "こんばんは", h: "こんばんは", r: "Konbanwa", i: "Selamat malam", c: "Sapaan" },
+            { k: "おやすみなさい", h: "おやすみなさい", r: "Oyasuminasai", i: "Selamat tidur (sopan)", c: "Sapaan" },
+            { k: "おやすみ", h: "おやすみ", r: "Oyasumi", i: "Selamat tidur (kasual)", c: "Sapaan" },
+            { k: "ありがとうございます", h: "ありがとうございます", r: "Arigatou gozaimasu", i: "Terima kasih (sopan)", c: "Sapaan" },
+            { k: "ありがとう", h: "ありがとう", r: "Arigatou", i: "Terima kasih (kasual)", c: "Sapaan" },
+            { k: "どういたしまして", h: "どういたしまして", r: "Douitashimashite", i: "Sama-sama", c: "Sapaan" },
+            { k: "すみません", h: "すみません", r: "Sumimasen", i: "Permisi, Maaf (sopan)", c: "Sapaan" },
+            { k: "ごめんなさい", h: "ごめんなさい", r: "Gomennasai", i: "Maaf (agak sopan)", c: "Sapaan" },
+            { k: "ごめん", h: "ごめん", r: "Gomen", i: "Maaf (kasual)", c: "Sapaan" },
+            { k: "はじめまして", h: "はじめまして", r: "Hajimemashite", i: "Senang berkenalan", c: "Sapaan" },
+            { k: "よろしくお願いします", h: "よろしくおねがいします", r: "Yoroshiku onegaishimasu", i: "Mohon bantuannya", c: "Sapaan" },
+            { k: "いただきます", h: "いただきます", r: "Itadakimasu", i: "Mohon dimakan", c: "Lainnya" },
+            { k: "ごちそうさまでした", h: "ごちそうさまでした", r: "Gochisousama deshita", i: "Terima kasih atas makanannya", c: "Lainnya" },
+
+            // --- KATA SIFAT (Adjectives) ---
+            { k: "いい", h: "いい", r: "Ii / Yoi", i: "Bagus", c: "Kata Sifat" },
+            { k: "大きい", h: "おおきい", r: "Ookii", i: "Besar", c: "Kata Sifat" },
+            { k: "小さい", h: "ちいさい", r: "Chiisai", i: "Kecil", c: "Kata Sifat" },
+            { k: "新しい", h: "あたらしい", r: "Atarashii", i: "Baru", c: "Kata Sifat" },
+            { k: "古い", h: "ふるい", r: "Furui", i: "Lama", c: "Kata Sifat" },
+            { k: "高い", h: "たかい", r: "Takai", i: "Tinggi, Mahal", c: "Kata Sifat" },
+            { k: "安い", h: "やすい", r: "Yasui", i: "Murah", c: "Kata Sifat" },
+            { k: "ひくい", h: "ひくい", r: "Hikui", i: "Rendah", c: "Kata Sifat" },
+            { k: "おいしい", h: "おいしい", r: "Oishii", i: "Enak", c: "Kata Sifat" },
+            { k: "まずい", h: "まずい", r: "Mazui", i: "Tidak enak, Gawat", c: "Kata Sifat" },
+            { k: "熱い", h: "あつい", r: "Atsui", i: "Panas (benda)", c: "Kata Sifat" },
+            { k: "暑い", h: "あつい", r: "Atsui", i: "Panas (cuaca)", c: "Kata Sifat" },
+            { k: "寒い", h: "さむい", r: "Samui", i: "Dingin (cuaca)", c: "Kata Sifat" },
+            { k: "冷たい", h: "つめたい", r: "Tsumetai", i: "Dingin (benda)", c: "Kata Sifat" },
+            { k: "難しい", h: "むずかしい", r: "Muzukashii", i: "Sulit/Susah", c: "Kata Sifat" },
+            { k: "易しい", h: "やさしい", r: "Yasashii", i: "Mudah", c: "Kata Sifat" },
+            { k: "多い", h: "おおい", r: "Ooi", i: "Banyak", c: "Kata Sifat" },
+            { k: "少ない", h: "すくない", r: "Sukunai", i: "Sedikit", c: "Kata Sifat" },
+            { k: "遠い", h: "とおい", r: "Tooi", i: "Jauh", c: "Kata Sifat" },
+            { k: "近い", h: "ちかい", r: "Chikai", i: "Dekat", c: "Kata Sifat" },
+            { k: "長い", h: "ながい", r: "Nagai", i: "Panjang", c: "Kata Sifat" },
+            { k: "短い", h: "みじかい", r: "Mijikai", i: "Pendek", c: "Kata Sifat" },
+            { k: "広い", h: "ひろい", r: "Hiroi", i: "Luas", c: "Kata Sifat" },
+            { k: "狭い", h: "せまい", r: "Semai", i: "Sempit", c: "Kata Sifat" },
+            { k: "明るい", h: "あかるい", r: "Akarui", i: "Terang", c: "Kata Sifat" },
+            { k: "暗い", h: "くらい", r: "Kurai", i: "Gelap", c: "Kata Sifat" },
+            { k: "重い", h: "おもい", r: "Omoi", i: "Berat", c: "Kata Sifat" },
+            { k: "軽い", h: "かるい", r: "Karui", i: "Ringan", c: "Kata Sifat" },
+            { k: "厚い", h: "あつい", r: "Atsui", i: "Tebal", c: "Kata Sifat" },
+            { k: "薄い", h: "うすい", r: "Usui", i: "Tipis", c: "Kata Sifat" },
+            { k: "いいえ", h: "いいえ", r: "Iie", i: "Tidak", c: "Lainnya" },
+            { k: "はい", h: "はい", r: "Hai", i: "Ya", c: "Lainnya" },
+            { k: "きれい", h: "きれい", r: "Kirei", i: "Cantik, Bersih", c: "Kata Sifat" },
+            { k: "にぎやか", h: "にぎやか", r: "Nigiyaka", i: "Ramai", c: "Kata Sifat" },
+            { k: "しずか", h: "しずか", r: "Shizuka", i: "Diam, Tenang", c: "Kata Sifat" },
+            { k: "元気", h: "げんき", r: "Genki", i: "Sehat, Bersemangat", c: "Kata Sifat" },
+            { k: "大丈夫", h: "だいじょうぶ", r: "Daijoubu", i: "Tidak apa-apa", c: "Kata Sifat" },
+            { k: "だいじ", h: "だいじ", r: "Daiji", i: "Penting", c: "Kata Sifat" },
+            { k: "好き", h: "すき", r: "Suki", i: "Suka", c: "Kata Sifat" },
+            { k: "嫌い", h: "きらい", r: "Kirai", i: "Benci", c: "Kata Sifat" },
+            { k: "便利", h: "べんり", r: "Benri", i: "Praktis", c: "Kata Sifat" },
+            { k: "不便", h: "ふべん", r: "Fuben", i: "Tidak praktis", c: "Kata Sifat" },
+            { k: "赤い", h: "あかい", r: "Akai", i: "Merah", c: "Kata Sifat" },
+            { k: "青い", h: "あおい", r: "Aoi", i: "Biru", c: "Kata Sifat" },
+            { k: "白い", h: "しろい", r: "Shiroi", i: "Putih", c: "Kata Sifat" },
+            { k: "黒い", h: "くろい", r: "Kuroi", i: "Hitam", c: "Kata Sifat" },
+            { k: "黄色い", h: "きいろい", r: "Kiiroi", i: "Kuning", c: "Kata Sifat" },
+            { k: "緑", h: "みどり", r: "Midori", i: "Hijau", c: "Kata Sifat" },
+            { k: "紫色", h: "むらさきいろ", r: "Murasakiiro", i: "Ungu", c: "Kata Sifat" },
+            { k: "甘い", h: "あまい", r: "Amai", i: "Manis", c: "Kata Sifat" },
+            { k: "辛い", h: "からい", r: "Karai", i: "Pedas", c: "Kata Sifat" },
+            { k: "しょっぱい", h: "しょっぱい", r: "Shoppai", i: "Asin", c: "Kata Sifat" },
+            { k: "酸っぱい", h: "すっぱい", r: "Suppai", i: "Asam", c: "Kata Sifat" },
+            { k: "苦い", h: "にがい", r: "Nigai", i: "Pahit", c: "Kata Sifat" },
+            { k: "眠い", h: "ねむい", r: "Nemui", i: "Mengantuk", c: "Kata Sifat" },
+            { k: "痛い", h: "いたい", r: "Itai", i: "Sakit (Nyeri)", c: "Kata Sifat" },
+            { k: "忙しい", h: "いそがしい", r: "Isogashii", i: "Sibuk", c: "Kata Sifat" },
+            { k: "楽しい", h: "たのしい", r: "Tanoshii", i: "Menyenangkan", c: "Kata Sifat" },
+            { k: "面白い", h: "おもしろい", r: "Omoshiroi", i: "Menarik/Seru", c: "Kata Sifat" },
+            { k: "つまらない", h: "つまらない", r: "Tsumaranai", i: "Membosankan", c: "Kata Sifat" },
+            { k: "早い", h: "はやい", r: "Hayai", i: "Cepat/Pagi", c: "Kata Sifat" },
+            { k: "遅い", h: "おそい", r: "Osoi", i: "Lambat/Sore", c: "Kata Sifat" },
+            { k: "美しい", h: "うつくしい", r: "Utsukushii", i: "Indah", c: "Kata Sifat" },
+            { k: "怖い", h: "こわい", r: "Kowai", i: "Menakutkan", c: "Kata Sifat" },
+            { k: "強い", h: "つよい", r: "Tsuyoi", i: "Kuat", c: "Kata Sifat" },
+            { k: "弱い", h: "よわい", r: "Yowai", i: "Lemah", c: "Kata Sifat" },
+            { k: "いい天気", h: "いいてんき", r: "Ii tenki", i: "Cuaca bagus", c: "Kata Sifat" },
+            { k: "悪い天気", h: "わるいてんき", r: "Warui tenki", i: "Cuaca buruk", c: "Kata Sifat" },
+            { k: "賑やか", h: "にぎやか", r: "Nigiyaka", i: "Ramai", c: "Kata Sifat" },
+            { k: "静か", h: "しずか", r: "Shizuka", i: "Tenang", c: "Kata Sifat" },
+            { k: "親切", h: "しんせつ", r: "Shinsetsu", i: "Ramah/Baik Hati", c: "Kata Sifat" },
+            { k: "まじめ", h: "まじめ", r: "Majime", i: "Serius", c: "Kata Sifat" },
+            { k: "有名", h: "ゆうめい", r: "Yuumei", i: "Terkenal", c: "Kata Sifat" },
+            { k: "お金持ち", h: "おかねもち", r: "Okanemochi", i: "Kaya", c: "Kata Sifat" },
+            { k: "貧乏", h: "びんぼう", r: "Binbou", i: "Miskin", c: "Kata Sifat" },
+            { k: "きびしい", h: "きびしい", r: "Kibishii", i: "Tegas/Keras", c: "Kata Sifat" },
+            { k: "やさしい", h: "やさしい", r: "Yasashii", i: "Baik hati/Pemurah", c: "Kata Sifat" },
+            { k: "わかい", h: "わかい", r: "Wakai", i: "Muda", c: "Kata Sifat" },
+            { k: "低い", h: "ひくい", r: "Hikui", i: "Rendah", c: "Kata Sifat" },
+            { k: "やばい", h: "やばい", r: "Yabai", i: "Bahaya/Gila", c: "Kata Sifat" },
+            { k: "おもしろい", h: "おもしろい", r: "Omoshiroi", i: "Menarik", c: "Kata Sifat" },
+            { k: "きれい", h: "きれい", r: "Kirei", i: "Cantik", c: "Kata Sifat" },
+            { k: "汚い", h: "きたない", r: "Kitanai", i: "Kotor", c: "Kata Sifat" },
+
+            // --- KATA KERJA (Verbs) ---
+            { k: "行く", h: "いく", r: "Iku", i: "Pergi", c: "Kata Kerja" },
+            { k: "来る", h: "くる", r: "Kuru", i: "Datang", c: "Kata Kerja" },
+            { k: "帰る", h: "かえる", r: "Kaeru", i: "Pulang/Kembali", c: "Kata Kerja" },
+            { k: "食べる", h: "たべる", r: "Taberu", i: "Makan", c: "Kata Kerja" },
+            { k: "飲む", h: "のむ", r: "Nomu", i: "Minum", c: "Kata Kerja" },
+            { k: "見る", h: "みる", r: "Miru", i: "Melihat/Menonton", c: "Kata Kerja" },
+            { k: "聞く", h: "きく", r: "Kiku", i: "Mendengar", c: "Kata Kerja" },
+            { k: "話す", h: "はなす", r: "Hanasu", i: "Berbicara", c: "Kata Kerja" },
+            { k: "言う", h: "いう", r: "Iu", i: "Berkata", c: "Kata Kerja" },
+            { k: "読む", h: "よむ", r: "Yomu", i: "Membaca", c: "Kata Kerja" },
+            { k: "書く", h: "かく", r: "Kaku", i: "Menulis", c: "Kata Kerja" },
+            { k: "買う", h: "かう", r: "Kau", i: "Membeli", c: "Kata Kerja" },
+            { k: "売る", h: "うる", r: "Uru", i: "Menjual", c: "Kata Kerja" },
+            { k: "待つ", h: "まつ", r: "Matsu", i: "Menunggu", c: "Kata Kerja" },
+            { k: "する", h: "する", r: "Suru", i: "Melakukan", c: "Kata Kerja" },
+            { k: "勉強する", h: "べんきょうする", r: "Benkyou suru", i: "Belajar", c: "Kata Kerja" },
+            { k: "働く", h: "はたらく", r: "Hataraku", i: "Bekerja", c: "Kata Kerja" },
+            { k: "休む", h: "やすむ", r: "Yasumu", i: "Istirahat", c: "Kata Kerja" },
+            { k: "寝る", h: "ねる", r: "Neru", i: "Tidur", c: "Kata Kerja" },
+            { k: "起きる", h: "おきる", r: "Okiru", i: "Bangun", c: "Kata Kerja" },
+            { k: "洗う", h: "あらう", r: "Arau", i: "Mencuci", c: "Kata Kerja" },
+            { k: "掃除する", h: "そうじする", r: "Souji suru", i: "Membersihkan", c: "Kata Kerja" },
+            { k: "使う", h: "つかう", r: "Tsukau", i: "Menggunakan", c: "Kata Kerja" },
+            { k: "作る", h: "つくる", r: "Tsukuru", i: "Membuat", c: "Kata Kerja" },
+            { k: "切る", h: "きる", r: "Kiru", i: "Memotong", c: "Kata Kerja" },
+            { k: "入れる", h: "いれる", r: "Ireru", i: "Memasukkan", c: "Kata Kerja" },
+            { k: "出す", h: "だす", r: "Dasu", i: "Mengeluarkan", c: "Kata Kerja" },
+            { k: "持つ", h: "もつ", r: "Motsu", i: "Membawa/Memegang", c: "Kata Kerja" },
+            { k: "取る", h: "とる", r: "Toru", i: "Mengambil", c: "Kata Kerja" },
+            { k: "会う", h: "あう", r: "Au", i: "Bertemu", c: "Kata Kerja" },
+            { k: "呼ぶ", h: "よぶ", r: "Yobu", i: "Memanggil", c: "Kata Kerja" },
+            { k: "歌う", h: "うたう", r: "Utau", i: "Bernyanyi", c: "Kata Kerja" },
+            { k: "踊る", h: "おどる", r: "Odoru", i: "Menari", c: "Kata Kerja" },
+            { k: "遊ぶ", h: "あそぶ", r: "Asobu", i: "Bermain", c: "Kata Kerja" },
+            { k: "走る", h: "はしる", r: "Hashiru", i: "Berlari", c: "Kata Kerja" },
+            { k: "歩く", h: "あるく", r: "Aruku", i: "Berjalan kaki", c: "Kata Kerja" },
+            { k: "泳ぐ", h: "およぐ", r: "Oyogu", i: "Berenang", c: "Kata Kerja" },
+            { k: "飛ぶ", h: "とぶ", r: "Tobu", i: "Terbang", c: "Kata Kerja" },
+            { k: "座る", h: "すわる", r: "Suwaru", i: "Duduk", c: "Kata Kerja" },
+            { k: "立つ", h: "たつ", r: "Tatsu", i: "Berdiri", c: "Kata Kerja" },
+            { k: "出る", h: "でる", r: "Deru", i: "Keluar", c: "Kata Kerja" },
+            { k: "入る", h: "はいる", r: "Hairu", i: "Masuk", c: "Kata Kerja" },
+            { k: "着く", h: "つく", r: "Tsuku", i: "Tiba/Sampai", c: "Kata Kerja" },
+            { k: "終わる", h: "おわる", r: "Owaru", i: "Selesai/Berakhir", c: "Kata Kerja" },
+            { k: "始まる", h: "はじまる", r: "Hajimaru", i: "Mulai/Dimulai", c: "Kata Kerja" },
+            { k: "死ぬ", h: "しぬ", r: "Shinu", i: "Mati", c: "Kata Kerja" },
+            { k: "殺す", h: "ころす", r: "Korosu", i: "Membunuh", c: "Kata Kerja" },
+            { k: "生きる", h: "いきる", r: "Ikiru", i: "Hidup", c: "Kata Kerja" },
+            { k: "住む", h: "すむ", r: "Sumu", i: "Tinggal/Menetap", c: "Kata Kerja" },
+            { k: "考える", h: "かんがえる", r: "Kangaeru", i: "Memikirkan", c: "Kata Kerja" },
+            { k: "知る", h: "しる", r: "Shiru", i: "Tahu", c: "Kata Kerja" },
+            { k: "分かる", h: "わかる", r: "Wakaru", i: "Mengerti", c: "Kata Kerja" },
+            { k: "忘れる", h: "わすれる", r: "Wasureru", i: "Lupa", c: "Kata Kerja" },
+            { k: "覚える", h: "おぼえる", r: "Oboeru", i: "Mengingat", c: "Kata Kerja" },
+            { k: "答える", h: "こたえる", r: "Kotaeru", i: "Menjawab", c: "Kata Kerja" },
+            { k: "質問する", h: "しつもんする", r: "Shitsumon suru", i: "Bertanya", c: "Kata Kerja" },
+            { k: "教える", h: "おしえる", r: "Oshieru", i: "Mengajarkan", c: "Kata Kerja" },
+            { k: "習う", h: "ならう", r: "Narau", i: "Belajar (Meniru)", c: "Kata Kerja" },
+            { k: "借りる", h: "かりる", r: "Kariru", i: "Meminjam", c: "Kata Kerja" },
+            { k: "貸す", h: "かす", r: "Kasu", i: "Meminjamkan", c: "Kata Kerja" },
+            { k: "返す", h: "かえす", r: "Kaesu", i: "Mengembalikan", c: "Kata Kerja" },
+            { k: "なくす", h: "なくす", r: "Nakusu", i: "Kehilangan", c: "Kata Kerja" },
+            { k: "捨てる", h: "すてる", r: "Suteru", i: "Membuang", c: "Kata Kerja" },
+            { k: "開ける", h: "あける", r: "Akeru", i: "Membuka", c: "Kata Kerja" },
+            { k: "閉める", h: "しめる", r: "Shimeru", i: "Menutup", c: "Kata Kerja" },
+            { k: "押す", h: "おす", r: "Osu", i: "Menekan/Mendorong", c: "Kata Kerja" },
+            { k: "引く", h: "ひく", r: "Hiku", i: "Menarik", c: "Kata Kerja" },
+            { k: "渡す", h: "わたす", r: "Watasu", i: "Menyerahkan", c: "Kata Kerja" },
+            { k: "受け取る", h: "うけとる", r: "Uketoru", i: "Menerima", c: "Kata Kerja" },
+            { k: "着る", h: "きる", r: "Kiru", i: "Memakai (baju)", c: "Kata Kerja" },
+            { k: "はく", h: "はく", r: "Haku", i: "Memakai (sepatu/kaos kaki)", c: "Kata Kerja" },
+            { k: "脱ぐ", h: "ぬぐ", r: "Nugu", i: "Melepas (pakaian)", c: "Kata Kerja" },
+            { k: "入浴する", h: "にゅうよくする", r: "Nyuyoku suru", i: "Mandi", c: "Kata Kerja" },
+            { k: "お風呂に入る", h: "おふろにはいる", r: "Ofuro ni hairu", i: "Mandi (di bak)", c: "Kata Kerja" },
+            { k: "結婚する", h: "けっこんする", r: "Kekkon suru", i: "Menikah", c: "Kata Kerja" },
+            { k: "別れる", h: "わかれる", r: "Wakareru", i: "Berpisah", c: "Kata Kerja" },
+            { k: "連絡する", h: "れんらくする", r: "Renraku suru", i: "Menghubungi", c: "Kata Kerja" },
+            { k: "電話する", h: "でんわする", r: "Denwa suru", i: "Menelepon", c: "Kata Kerja" },
+            { k: "壊す", h: "こわす", r: "Kowasu", i: "Merusak", c: "Kata Kerja" },
+            { k: "直す", h: "なおす", r: "Naosu", i: "Memperbaiki", c: "Kata Kerja" },
+            { k: "見せる", h: "みせる", r: "Miseru", i: "Memperlihatkan", c: "Kata Kerja" },
+            { k: "見つける", h: "みつける", r: "Mitsukeru", i: "Menemukan", c: "Kata Kerja" },
+            { k: "探す", h: "さがす", r: "Sagasu", i: "Mencari", c: "Kata Kerja" },
+            { k: "選ぶ", h: "えらぶ", r: "Erabu", i: "Memilih", c: "Kata Kerja" },
+            { k: "決める", h: "きめる", r: "Kimeru", i: "Memutuskan", c: "Kata Kerja" },
+            { k: "かかる", h: "かかる", r: "Kakaru", i: "Makan waktu/Biaya", c: "Kata Kerja" },
+            { k: "急ぐ", h: "いそぐ", r: "Isogu", i: "Buru-buru", c: "Kata Kerja" },
+            { k: "助ける", h: "たすける", r: "Tasukeru", i: "Menolong", c: "Kata Kerja" },
+            { k: "手伝う", h: "てつだう", r: "Tetsudau", i: "Membantu", c: "Kata Kerja" },
+            { k: "かわる", h: "かわる", r: "Kawaru", i: "Berubah", c: "Kata Kerja" },
+            { k: "換える", h: "かえる", r: "Kaeru", i: "Mengganti", c: "Kata Kerja" },
+            { k: "出かける", h: "でかける", r: "Dekakeru", i: "Pergi keluar", c: "Kata Kerja" },
+            { k: "戻る", h: "もどる", r: "Modoru", i: "Kembali (mundur)", c: "Kata Kerja" },
+            { k: "通る", h: "とおる", r: "Tooru", i: "Lewat", c: "Kata Kerja" },
+            { k: "曲がる", h: "まがる", r: "Magaru", i: "Belok", c: "Kata Kerja" },
+            { k: "止まる", h: "とまる", r: "Tomaru", i: "Berhenti (mesin/kendaraan)", c: "Kata Kerja" },
+            { k: "止める", h: "とめる", r: "Tomeru", i: "Menghentikan", c: "Kata Kerja" },
+            { k: "残業する", h: "ざんぎょうする", r: "Zangyou suru", i: "Lembur", c: "Kata Kerja" },
+            { k: "転勤する", h: "てんきんする", r: "Tenkin suru", i: "Mutasi kerja", c: "Kata Kerja" },
+            { k: "休憩する", h: "きゅうけいする", r: "Kyuukei suru", i: "Istirahat sejenak", c: "Kata Kerja" },
+            { k: "食べる", h: "たべる", r: "Taberu", i: "Makan", c: "Kata Kerja" },
+            { k: "吸う", h: "すう", r: "Suu", i: "Menghisap (rokok)", c: "Kata Kerja" },
+            { k: "やめる", h: "やめる", r: "Yameru", i: "Berhenti (melakukan sesuatu)", c: "Kata Kerja" },
+            { k: "予約する", h: "よやくする", r: "Yoyaku suru", i: "Memesan", c: "Kata Kerja" },
+            { k: "予約する", h: "よやくする", r: "Yoyaku suru", i: "Reservasi", c: "Kata Kerja" },
+            { k: "予約する", h: "よやくする", r: "Yoyaku suru", i: "Booking", c: "Kata Kerja" },
+            { k: "入る", h: "はいる", r: "Hairu", i: "Masuk", c: "Kata Kerja" },
+            { k: "出る", h: "でる", r: "Deru", i: "Keluar", c: "Kata Kerja" },
+            { k: "ある", h: "ある", r: "Aru", i: "Ada (benda mati)", c: "Kata Kerja" },
+            { k: "いる", h: "いる", r: "Iru", i: "Ada (makhluk hidup)", c: "Kata Kerja" },
+            { k: "なくなる", h: "なくなる", r: "Nakunaru", i: "Hilang", c: "Kata Kerja" },
+            { k: "見つかる", h: "みつかる", r: "Mitsukaru", i: "Ditemukan", c: "Kata Kerja" },
+            { k: "決まる", h: "きまる", r: "Kimaru", i: "Diputuskan", c: "Kata Kerja" },
+            { k: "始める", h: "はじめる", r: "Hajimeru", i: "Memulai", c: "Kata Kerja" },
+            { k: "終わる", h: "おわる", r: "Owaru", i: "Selesai", c: "Kata Kerja" },
+
+            // --- KATA BENDA (Nouns) ---
+            { k: "私", h: "わたし", r: "Watashi", i: "Saya", c: "Kata Benda" },
+            { k: "あなた", h: "あなた", r: "Anata", i: "Anda/Kamu", c: "Kata Benda" },
+            { k: "彼", h: "かれ", r: "Kare", i: "Dia (Laki-laki)", c: "Kata Benda" },
+            { k: "彼女", h: "かのじょ", r: "Kanojo", i: "Dia (Perempuan)", c: "Kata Benda" },
+            { k: "家族", h: "かぞく", r: "Kazoku", i: "Keluarga", c: "Kata Benda" },
+            { k: "父", h: "ちち", r: "Chichi", i: "Ayah", c: "Kata Benda" },
+            { k: "母", h: "はは", r: "Haha", i: "Ibu", c: "Kata Benda" },
+            { k: "兄弟", h: "きょうだい", r: "Kyoudai", i: "Saudara", c: "Kata Benda" },
+            { k: "兄", h: "あに", r: "Ani", i: "Kakak Laki-laki", c: "Kata Benda" },
+            { k: "姉", h: "あね", r: "Ane", i: "Kakak Perempuan", c: "Kata Benda" },
+            { k: "友達", h: "ともだち", r: "Tomodachi", i: "Teman", c: "Kata Benda" },
+            { k: "先生", h: "せんせい", r: "Sensei", i: "Guru", c: "Kata Benda" },
+            { k: "学生", h: "がくせい", r: "Gakusei", i: "Murid/Siswa", c: "Kata Benda" },
+            { k: "人", h: "ひと", r: "Hito", i: "Orang", c: "Kata Benda" },
+            { k: "日本", h: "にほん", r: "Nihon", i: "Jepang", c: "Kata Benda" },
+            { k: "日本語", h: "にほんご", r: "Nihongo", i: "Bahasa Jepang", c: "Kata Benda" },
+            { k: "お金", h: "おかね", r: "Okane", i: "Uang", c: "Kata Benda" },
+            { k: "時間", h: "じかん", r: "Jikan", i: "Waktu", c: "Kata Benda" },
+            { k: "時", h: "とき", r: "Toki", i: "Saat", c: "Kata Benda" },
+            { k: "今日", h: "きょう", r: "Kyou", i: "Hari ini", c: "Kata Benda" },
+            { k: "明日", h: "あした", r: "Ashita", i: "Besok", c: "Kata Benda" },
+            { k: "昨日", h: "きのう", r: "Kinou", i: "Kemarin", c: "Kata Benda" },
+            { k: "今", h: "いま", r: "Ima", i: "Sekarang", c: "Kata Benda" },
+            { k: "朝", h: "あさ", r: "Asa", i: "Pagi", c: "Kata Benda" },
+            { k: "昼", h: "ひる", r: "Hiru", i: "Siang", c: "Kata Benda" },
+            { k: "夜", h: "よる", r: "Yoru", i: "Malam", c: "Kata Benda" },
+            { k: "場所", h: "ばしょ", r: "Basho", i: "Tempat", c: "Kata Benda" },
+            { k: "会社", h: "かいしゃ", r: "Kaisha", i: "Perusahaan/Kantor", c: "Kata Benda" },
+            { k: "学校", h: "がっこう", r: "Gakkou", i: "Sekolah", c: "Kata Benda" },
+            { k: "家", h: "いえ", r: "Ie", i: "Rumah", c: "Kata Benda" },
+            { k: "部屋", h: "へや", r: "Heya", i: "Kamar", c: "Kata Benda" },
+            { k: "車", h: "くるま", r: "Kuruma", i: "Mobil", c: "Kata Benda" },
+            { k: "電車", h: "でんしゃ", r: "Densha", i: "Kereta", c: "Kata Benda" },
+            { k: "飛行機", h: "ひこうき", r: "Hikouki", i: "Pesawat Terbang", c: "Kata Benda" },
+            { k: "自転車", h: "じてんしゃ", r: "Jitensha", i: "Sepeda", c: "Kata Benda" },
+            { k: "駅", h: "えき", r: "Eki", i: "Stasiun", c: "Kata Benda" },
+            { k: "空港", h: "くうこう", r: "Kuukou", i: "Bandara", c: "Kata Benda" },
+            { k: "電話", h: "でんわ", r: "Denwa", i: "Telepon", c: "Kata Benda" },
+            { k: "携帯", h: "けいたい", r: "Keitai", i: "HP", c: "Kata Benda" },
+            { k: "スマホ", h: "すまほ", r: "Sumaho", i: "Smartphone", c: "Kata Benda" },
+            { k: "パソコン", h: "ぱそこん", r: "Pasokon", i: "Komputer", c: "Kata Benda" },
+            { k: "テレビ", h: "てれび", r: "Terebi", i: "Televisi", c: "Kata Benda" },
+            { k: "新聞", h: "しんぶん", r: "Shinbun", i: "Koran", c: "Kata Benda" },
+            { k: "本", h: "ほん", r: "Hon", i: "Buku", c: "Kata Benda" },
+            { k: "雑誌", h: "ざっし", r: "Zasshi", i: "Majalah", c: "Kata Benda" },
+            { k: "手紙", h: "てがみ", r: "Tegami", i: "Surat", c: "Kata Benda" },
+            { k: "写真", h: "しゃしん", r: "Shashin", i: "Foto", c: "Kata Benda" },
+            { k: "絵", h: "え", r: "E", i: "Gambar", c: "Kata Benda" },
+            { k: "音楽", h: "おんがく", r: "Ongaku", i: "Musik", c: "Kata Benda" },
+            { k: "歌", h: "うた", r: "Uta", i: "Lagu", c: "Kata Benda" },
+            { k: "スポーツ", h: "すぽーつ", r: "Supootsu", i: "Olahraga", c: "Kata Benda" },
+            { k: "サッカー", h: "さっかー", r: "Sakkaa", i: "Sepak Bola", c: "Kata Benda" },
+            { k: "野球", h: "やきゅう", r: "Yakyuu", i: "Baseball", c: "Kata Benda" },
+            { k: "試合", h: "しあい", r: "Shiai", i: "Pertandingan", c: "Kata Benda" },
+            { k: "試験", h: "しけん", r: "Shiken", i: "Ujian", c: "Kata Benda" },
+            { k: "宿題", h: "しゅくだい", r: "Shukudai", i: "PR", c: "Kata Benda" },
+            { k: "質問", h: "しつもん", r: "Shitsumon", i: "Pertanyaan", c: "Kata Benda" },
+            { k: "答え", h: "こたえ", r: "Kotae", i: "Jawaban", c: "Kata Benda" },
+            { k: "病気", h: "びょうき", r: "Byouki", i: "Sakit (Penyakit)", c: "Kata Benda" },
+            { k: "病院", h: "びょういん", r: "Byouin", i: "Rumah Sakit", c: "Kata Benda" },
+            { k: "薬", h: "くすり", r: "Kusuri", i: "Obat", c: "Kata Benda" },
+            { k: "天気", h: "てんき", r: "Tenki", i: "Cuaca", c: "Kata Benda" },
+            { k: "雨", h: "あめ", r: "Ame", i: "Hujan", c: "Kata Benda" },
+            { k: "雪", h: "ゆき", r: "Yuki", i: "Salju", c: "Kata Benda" },
+            { k: "風", h: "かぜ", r: "Kaze", i: "Angin", c: "Kata Benda" },
+            { k: "台風", h: "たいふう", r: "Taifuu", i: "Badai", c: "Kata Benda" },
+            { k: "国", h: "くに", r: "Kuni", i: "Negara", c: "Kata Benda" },
+            { k: "町", h: "まち", r: "Machi", i: "Kota", c: "Kata Benda" },
+            { k: "道", h: "みち", r: "Michi", i: "Jalan", c: "Kata Benda" },
+            { k: "山", h: "やま", r: "Yama", i: "Gunung", c: "Kata Benda" },
+            { k: "川", h: "かわ", r: "Kawa", i: "Sungai", c: "Kata Benda" },
+            { k: "海", h: "うみ", r: "Umi", i: "Laut", c: "Kata Benda" },
+            { k: "空", h: "そら", r: "Sora", i: "Langit", c: "Kata Benda" },
+            { k: "地下鉄", h: "ちかてつ", r: "Chikatetsu", i: "Kereta bawah tanah", c: "Kata Benda" },
+            { k: "バス", h: "ばす", r: "Basu", i: "Bus", c: "Kata Benda" },
+            { k: "タクシー", h: "たくしー", r: "Takushii", i: "Taksi", c: "Kata Benda" },
+            { k: "切符", h: "きっぷ", r: "Kippu", i: "Tiket", c: "Kata Benda" },
+            { k: "荷物", h: "にもつ", r: "Nimotsu", i: "Barang bawaan", c: "Kata Benda" },
+            { k: "花", h: "はな", r: "Hana", i: "Bunga", c: "Kata Benda" },
+            { k: "木", h: "き", r: "Ki", i: "Pohon", c: "Kata Benda" },
+            { k: "鳥", h: "とり", r: "Tori", i: "Burung", c: "Kata Benda" },
+            { k: "犬", h: "いぬ", r: "Inu", i: "Anjing", c: "Kata Benda" },
+            { k: "猫", h: "ねこ", r: "Neko", i: "Kucing", c: "Kata Benda" },
+            { k: "肉", h: "にく", r: "Niku", i: "Daging", c: "Kata Benda" },
+            { k: "野菜", h: "やさい", r: "Yasai", i: "Sayur", c: "Kata Benda" },
+            { k: "果物", h: "くだもの", r: "Kudamono", i: "Buah", c: "Kata Benda" },
+            { k: "水", h: "みず", r: "Mizu", i: "Air", c: "Kata Benda" },
+            { k: "お茶", h: "おちゃ", r: "Ocha", i: "Teh", c: "Kata Benda" },
+            { k: "コーヒー", h: "こーひー", r: "Koohii", i: "Kopi", c: "Kata Benda" },
+            { k: "ビール", h: "びーる", r: "Biiru", i: "Bir", c: "Kata Benda" },
+            { k: "日本酒", h: "にほんしゅ", r: "Nihonshu", i: "Sake", c: "Kata Benda" },
+            { k: "ご飯", h: "ごはん", r: "Gohan", i: "Nasi", c: "Kata Benda" },
+            { k: "パン", h: "ぱん", r: "Pan", i: "Roti", c: "Kata Benda" },
+            { k: "卵", h: "たまご", r: "Tamago", i: "Telur", c: "Kata Benda" },
+            { k: "ケーキ", h: "けーき", r: "Keeki", i: "Kue Tart", c: "Kata Benda" },
+            { k: "アイスクリーム", h: "あいすくりーむ", r: "Aisukuriimu", i: "Es Krim", c: "Kata Benda" },
+            { k: "チョコレート", h: "ちょこれーと", r: "Chokoreeto", i: "Coklat", c: "Kata Benda" },
+            { k: "靴", h: "くつ", r: "Kutsu", i: "Sepatu", c: "Kata Benda" },
+            { k: "服", h: "ふく", r: "Fuku", i: "Pakaian", c: "Kata Benda" },
+            { k: "帽子", h: "ぼうし", r: "Boushi", i: "Topi", c: "Kata Benda" },
+            { k: "眼鏡", h: "めがね", r: "Megane", i: "Kacamata", c: "Kata Benda" },
+            { k: "時計", h: "とけい", r: "Tokei", i: "Jam", c: "Kata Benda" },
+            { k: "かばん", h: "かばん", r: "Kaban", i: "Tas", c: "Kata Benda" },
+            { k: "財布", h: "さいふ", r: "Saifu", i: "Dompet", c: "Kata Benda" },
+            { k: "切手", h: "きって", r: "Kitte", i: "Perangko", c: "Kata Benda" },
+            { k: "封筒", h: "ふうとう", r: "Fuutou", i: "Amplop", c: "Kata Benda" },
+            { k: "窓", h: "まど", r: "Mado", i: "Jendela", c: "Kata Benda" },
+            { k: "ドア", h: "どあ", r: "Doa", i: "Pintu", c: "Kata Benda" },
+            { k: "鍵", h: "かぎ", r: "Kagi", i: "Kunci", c: "Kata Benda" },
+            { k: "電気", h: "でんき", r: "Denki", i: "Listrik/Lampu", c: "Kata Benda" },
+            { k: "冷蔵庫", h: "れいぞうこ", r: "Reizouko", i: "Kulkas", c: "Kata Benda" },
+            { k: "テーブル", h: "てーぶる", r: "Teeburu", i: "Meja", c: "Kata Benda" },
+            { k: "椅子", h: "いす", r: "Isu", i: "Kursi", c: "Kata Benda" },
+            { k: "ベッド", h: "べっど", r: "Beddo", i: "Tempat Tidur", c: "Kata Benda" },
+            { k: "掃除機", h: "そうじき", r: "Soujiki", i: "Penyapu Elektrik", c: "Kata Benda" },
+            { k: "洗濯機", h: "せんたくき", r: "Sentakuki", i: "Mesin Cuci", c: "Kata Benda" },
+            { k: "名字", h: "みょうじ", r: "Myouji", i: "Nama Keluarga", c: "Kata Benda" },
+            { k: "名前", h: "なまえ", r: "Namae", i: "Nama", c: "Kata Benda" },
+            { k: "誕生日", h: "たんじょうび", r: "Tanjoubi", i: "Ulang Tahun", c: "Kata Benda" },
+            { k: "年", h: "とし", r: "Toshi", i: "Tahun/Umur", c: "Kata Benda" },
+            { k: "一月", h: "いちがつ", r: "Ichigatsu", i: "Januari", c: "Kata Benda" },
+            { k: "二月", h: "にがつ", r: "Nigatsu", i: "Februari", c: "Kata Benda" },
+            { k: "三月", h: "さんがつ", r: "Sangatsu", i: "Maret", c: "Kata Benda" },
+            { k: "四月", h: "しがつ", r: "Shigatsu", i: "April", c: "Kata Benda" },
+            { k: "五月", h: "ごがつ", r: "Gogatsu", i: "Mei", c: "Kata Benda" },
+            { k: "六月", h: "ろくがつ", r: "Rokugatsu", i: "Juni", c: "Kata Benda" },
+            { k: "七月", h: "しちがつ", r: "Shichigatsu", i: "Juli", c: "Kata Benda" },
+            { k: "八月", h: "はちがつ", r: "Hachigatsu", i: "Agustus", c: "Kata Benda" },
+            { k: "九月", h: "くがつ", r: "Kugatsu", i: "September", c: "Kata Benda" },
+            { k: "十月", h: "じゅうがつ", r: "Juugatsu", i: "Oktober", c: "Kata Benda" },
+            { k: "十一月", h: "じゅういちがつ", r: "Juuichigatsu", i: "November", c: "Kata Benda" },
+            { k: "十二月", h: "じゅうにがつ", r: "Juunigatsu", i: "Desember", c: "Kata Benda" },
+            { k: "月曜日", h: "げつようび", r: "Getsuyoubi", i: "Senin", c: "Kata Benda" },
+            { k: "火曜日", h: "かようび", r: "Kayoubi", i: "Selasa", c: "Kata Benda" },
+            { k: "水曜日", h: "すいようび", r: "Suiyoubi", i: "Rabu", c: "Kata Benda" },
+            { k: "木曜日", h: "もくようび", r: "Mokuyoubi", i: "Kamis", c: "Kata Benda" },
+            { k: "金曜日", h: "きんようび", r: "Kinyoubi", i: "Jumat", c: "Kata Benda" },
+            { k: "土曜日", h: "どようび", r: "Doyoubi", i: "Sabtu", c: "Kata Benda" },
+            { k: "日曜日", h: "にちようび", r: "Nichiyoubi", i: "Minggu", c: "Kata Benda" },
+            { k: "今朝", h: "けさ", r: "Kesa", i: "Tadi pagi", c: "Kata Benda" },
+            { k: "今晩", h: "こんばん", r: "Konban", i: "Malam ini", c: "Kata Benda" },
+            { k: "来週", h: "らいしゅう", r: "Raishuu", i: "Minggu depan", c: "Kata Benda" },
+            { k: "再来週", h: "さらいしゅう", r: "Saraishuu", i: "Minggu depan lagi", c: "Kata Benda" },
+            { k: "来月", h: "らいげつ", r: "Raigetsu", i: "Bulan depan", c: "Kata Benda" },
+            { k: "再来月", h: "さらいげつ", r: "Saraigetsu", i: "Bulan depan lagi", c: "Kata Benda" },
+            { k: "来年", h: "らいねん", r: "Rainen", i: "Tahun depan", c: "Kata Benda" },
+            { k: "再来年", h: "さらいねん", r: "Sarainen", i: "Tahun depan lagi", c: "Kata Benda" },
+            { k: "毎朝", h: "まいあさ", r: "Maiasa", i: "Setiap pagi", c: "Kata Benda" },
+            { k: "毎晩", h: "まいばん", r: "Maiban", i: "Setiap malam", c: "Kata Benda" },
+            { k: "毎週", h: "まいしゅう", r: "Maishuu", i: "Setiap minggu", c: "Kata Benda" },
+            { k: "毎月", h: "まいつき", r: "Maitsuki", i: "Setiap bulan", c: "Kata Benda" },
+            { k: "毎年", h: "まいとし", r: "Maitoshi", i: "Setiap tahun", c: "Kata Benda" },
+            { k: "ご飯", h: "ごはん", r: "Gohan", i: "Makanan/Nasi", c: "Kata Benda" },
+            { k: "朝ご飯", h: "あさごはん", r: "Asagohan", i: "Makan Pagi/Sarapan", c: "Kata Benda" },
+            { k: "昼ご飯", h: "ひるごはん", r: "Hirugohan", i: "Makan Siang", c: "Kata Benda" },
+            { k: "晩ご飯", h: "ばんごはん", r: "Bangohan", i: "Makan Malam", c: "Kata Benda" },
+            { k: "おやつ", h: "おやつ", r: "Oyatsu", i: "Camilan", c: "Kata Benda" },
+            { k: "料理", h: "りょうり", r: "Ryouri", i: "Masakan", c: "Kata Benda" },
+            { k: "レストラン", h: "れすとらん", r: "Resutoran", i: "Restoran", c: "Kata Benda" },
+            { k: "食堂", h: "しょくどう", r: "Shokudou", i: "Kantin", c: "Kata Benda" },
+            { k: "喫茶店", h: "きっさてん", r: "Kissaten", i: "Kafe", c: "Kata Benda" },
+            { k: "寿司", h: "すし", r: "Sushi", i: "Sushi", c: "Kata Benda" },
+            { k: "天ぷら", h: "てんぷら", r: "Tempura", i: "Tempura", c: "Kata Benda" },
+            { k: "ラーメン", h: "らーめん", r: "Ramen", i: "Mie Ramen", c: "Kata Benda" },
+            { k: "スープ", h: "すーぷ", r: "Suupu", i: "Sup", c: "Kata Benda" },
+            { k: "サラダ", h: "さらだ", r: "Salada", i: "Salad", c: "Kata Benda" },
+            { k: "ステーキ", h: "すてーき", r: "Suteeki", i: "Steak", c: "Kata Benda" },
+            { k: "ハンバーグ", h: "はんばーぐ", r: "Hanbaagu", i: "Hamburger", c: "Kata Benda" },
+            { k: "デザート", h: "でざーと", r: "Dezaato", i: "Penutup", c: "Kata Benda" },
+            { k: "ジュース", h: "じゅーす", r: "Juusu", i: "Jus", c: "Kata Benda" },
+            { k: "牛乳", h: "ぎゅうにゅう", r: "Gyuunyuu", i: "Susu", c: "Kata Benda" },
+            { k: "紅茶", h: "こうちゃ", r: "Koucha", i: "Teh hitam", c: "Kata Benda" },
+            { k: "緑茶", h: "りょくちゃ", r: "Ryokucha", i: "Teh hijau", c: "Kata Benda" },
+            { k: "コーラ", h: "こーら", r: "Koora", i: "Coca-cola", c: "Kata Benda" },
+            { k: "ワイン", h: "わいん", r: "Wain", i: "Anggur", c: "Kata Benda" },
+            { k: "水曜日", h: "すいようび", r: "Suiyoubi", i: "Rabu", c: "Kata Benda" },
+            { k: "国際", h: "こくさい", r: "Kokusai", i: "Internasional", c: "Lainnya" },
+            { k: "東", h: "ひがし", r: "Higashi", i: "Timur", c: "Kata Benda" },
+            { k: "西", h: "にし", r: "Nishi", i: "Barat", c: "Kata Benda" },
+            { k: "南", h: "みなみ", r: "Minami", i: "Selatan", c: "Kata Benda" },
+            { k: "北", h: "きた", r: "Kita", i: "Utara", c: "Kata Benda" },
+            { k: "世界", h: "せかい", r: "Sekai", i: "Dunia", c: "Kata Benda" },
+            { k: "アジア", h: "あじあ", r: "Ajia", i: "Asia", c: "Kata Benda" },
+            { k: "ヨーロッパ", h: "よーろっぱ", r: "Yoroppa", i: "Eropa", c: "Kata Benda" },
+            { k: "アメリカ", h: "あめりか", r: "Amerika", i: "Amerika", c: "Kata Benda" },
+            { k: "イギリス", h: "いぎりす", r: "Igirisu", i: "Inggris", c: "Kata Benda" },
+            { k: "ドイツ", h: "どいつ", r: "Doitsu", i: "Jerman", c: "Kata Benda" },
+            { k: "フランス", h: "ふらんす", r: "Furansu", i: "Perancis", c: "Kata Benda" },
+            { k: "中国", h: "ちゅうごく", r: "Chuugoku", i: "Tiongkok", c: "Kata Benda" },
+            { k: "韓国", h: "かんこく", r: "Kankoku", i: "Korea", c: "Kata Benda" },
+            { k: "ブラジル", h: "ぶらじる", r: "Burajiru", i: "Brasil", c: "Kata Benda" },
+            { k: "ロシア", h: "ろしあ", r: "Roshia", i: "Rusia", c: "Kata Benda" },
+            { k: "オーストラリア", h: "おーすとらりあ", r: "Ousutoraria", i: "Australia", c: "Kata Benda" },
+            { k: "インドネシア", h: "いんどねしあ", r: "Indoneshia", i: "Indonesia", c: "Kata Benda" },
+            { k: "ジャカルタ", h: "じゃかるた", r: "Jakaruta", i: "Jakarta", c: "Kata Benda" },
+            { k: "東京", h: "とうきょう", r: "Tokyo", i: "Tokyo", c: "Kata Benda" },
+            { k: "大阪", h: "おおさか", r: "Oosaka", i: "Osaka", c: "Kata Benda" },
+            { k: "京都", h: "きょうと", r: "Kyouto", i: "Kyoto", c: "Kata Benda" },
+            { k: "北海道", h: "ほっかいどう", r: "Hokkaidou", i: "Hokkaido", c: "Kata Benda" },
+            { k: "沖縄", h: "おきなわ", r: "Okinawa", i: "Okinawa", c: "Kata Benda" },
+            { k: "富士山", h: "ふじさん", r: "Fujisan", i: "Gunung Fuji", c: "Kata Benda" },
+            { k: "男", h: "おとこ", r: "Otoko", i: "Laki-laki", c: "Kata Benda" },
+            { k: "女", h: "おんな", r: "Onna", i: "Perempuan", c: "Kata Benda" },
+            { k: "子供", h: "こども", r: "Kodomo", i: "Anak", c: "Kata Benda" },
+            { k: "赤ちゃん", h: "あかちゃん", r: "Akachan", i: "Bayi", c: "Kata Benda" },
+            { k: "おじいさん", h: "おじいさん", r: "Ojiisan", i: "Kakek", c: "Kata Benda" },
+            { k: "おばあさん", h: "おばあさん", r: "Obaasan", i: "Nenek", c: "Kata Benda" },
+            { k: "叔父さん", h: "おじさん", r: "Ojisan", i: "Paman", c: "Kata Benda" },
+            { k: "叔母さん", h: "おばさん", r: "Obasan", i: "Bibi", c: "Kata Benda" },
+            { k: "甥", h: "おい", r: "Oi", i: "Keponakan Laki-laki", c: "Kata Benda" },
+            { k: "姪", h: "めい", r: "Mei", i: "Keponakan Perempuan", c: "Kata Benda" },
+            { k: "夫", h: "おっと", r: "Otto", i: "Suami", c: "Kata Benda" },
+            { k: "妻", h: "つま", r: "Tsuma", i: "Istri", c: "Kata Benda" },
+            { k: "恋人", h: "こいびと", r: "Koibito", i: "Pacar", c: "Kata Benda" },
+            { k: "彼氏", h: "かれし", r: "Kareshi", i: "Pacar Cowok", c: "Kata Benda" },
+            { k: "彼女", h: "かのじょ", r: "Kanojo", i: "Pacar Cewek", c: "Kata Benda" },
+            { k: "警察", h: "けいさつ", r: "Keisatsu", i: "Polisi", c: "Kata Benda" },
+            { k: "消防", h: "しょうぼう", r: "Shoubou", i: "Pemadam Kebakaran", c: "Kata Benda" },
+            { k: "消防署", h: "しょうぼうしょ", r: "Shoubousho", i: "Stasiun Pemadam", c: "Kata Benda" },
+            { k: "郵便局", h: "ゆうびんきょく", r: "Yuubinkyoku", i: "Kantor Pos", c: "Kata Benda" },
+            { k: "銀行", h: "ぎんこう", r: "Ginkou", i: "Bank", c: "Kata Benda" },
+            { k: "病院", h: "びょういん", r: "Byouin", i: "Rumah Sakit", c: "Kata Benda" },
+            { k: "歯医者", h: "はいしゃ", r: "Haisha", i: "Dokter Gigi", c: "Kata Benda" },
+            { k: "薬局", h: "やっきょく", r: "Yakkyoku", i: "Apotek", c: "Kata Benda" },
+            { k: "学校", h: "がっこう", r: "Gakkou", i: "Sekolah", c: "Kata Benda" },
+            { k: "大学", h: "だいがく", r: "Daigaku", i: "Universitas", c: "Kata Benda" },
+            { k: "高校", h: "こうこう", r: "Koukou", i: "SMA", c: "Kata Benda" },
+            { k: "中学校", h: "ちゅうがっこう", r: "Chuugakkou", i: "SMP", c: "Kata Benda" },
+            { k: "小学校", h: "しょうがっこう", r: "Shougakkou", i: "SD", c: "Kata Benda" },
+            { k: "幼稚園", h: "ようちえん", r: "Youchien", i: "TK", c: "Kata Benda" },
+            { k: "図書館", h: "としょかん", r: "Toshokan", i: "Perpustakaan", c: "Kata Benda" },
+            { k: "美術館", h: "びじゅつかん", r: "Bijutsukan", i: "Museum Seni", c: "Kata Benda" },
+            { k: "博物館", h: "はくぶつかん", r: "Hakubutsukan", i: "Museum", c: "Kata Benda" },
+            { k: "動物園", h: "どうぶつえん", r: "Doubutsuen", i: "Kebun Binatang", c: "Kata Benda" },
+            { k: "水族館", h: "すいぞくかん", r: "Suizokukan", i: "Akuarium", c: "Kata Benda" },
+            { k: "公園", h: "こうえん", r: "Kouen", i: "Taman", c: "Kata Benda" },
+            { k: "広場", h: "ひろば", r: "Hiroba", i: "Alun-alun", c: "Kata Benda" },
+            { k: "市场", h: "いちば", r: "Ichiba", i: "Pasar", c: "Kata Benda" },
+            { k: "スーパー", h: "すーぱー", r: "Suupaa", i: "Supermarket", c: "Kata Benda" },
+            { k: "デパート", h: "でぱーと", r: "Depaato", i: "Department Store", c: "Kata Benda" },
+            { k: "コンビニ", h: "こんびに", r: "Konbini", i: "Minimarket", c: "Kata Benda" },
+            { k: "店", h: "みせ", r: "Mise", i: "Toko", c: "Kata Benda" },
+            { k: "本屋", h: "ほんや", r: "Hon'ya", i: "Toko Buku", c: "Kata Benda" },
+            { k: "花屋", h: "はなや", r: "Hanaya", i: "Toko Bunga", c: "Kata Benda" },
+            { k: "パン屋", h: "ぱんや", r: "Pan'ya", i: "Toko Roti", c: "Kata Benda" },
+            { k: "肉屋", h: "にくや", r: "Nikuya", i: "Toko Daging", c: "Kata Benda" },
+            { k: "魚屋", h: "さかなや", r: "Sakana ya", i: "Toko Ikan", c: "Kata Benda" },
+            { k: "八百屋", h: "やおや", r: "Yaoya", i: "Toko Sayur", c: "Kata Benda" },
+            { k: "靴屋", h: "くつや", r: "Kutsuya", i: "Toko Sepatu", c: "Kata Benda" },
+            { k: "服屋", h: "ふくや", r: "Fukuya", i: "Toko Pakaian", c: "Kata Benda" },
+            { k: "時計屋", h: "とけいや", r: "Tokeiya", i: "Toko Jam", c: "Kata Benda" },
+            { k: "眼鏡屋", h: "めがねや", r: "Meganeya", i: "Toko Kacamata", c: "Kata Benda" },
+            { k: "薬屋", h: "くすりや", r: "Kusuriya", i: "Toko Obat", c: "Kata Benda" },
+            { k: "文房具屋", h: "ぶんぼうぐや", r: "Bunbouguya", i: "Toko Alat Tulis", c: "Kata Benda" },
+            { k: "電気屋", h: "でんきや", r: "Denkiya", i: "Toko Elektronik", c: "Kata Benda" },
+            { k: "床屋", h: "とこや", r: "Tokoya", i: "Pangkas Rambut", c: "Kata Benda" },
+            { k: "美容院", h: "びよういん", r: "Biyouin", i: "Salon Kecantikan", c: "Kata Benda" },
+            { k: "映画館", h: "えいがかん", r: "Eigakan", i: "Bioskop", c: "Kata Benda" },
+            { k: "劇場", h: "げきじょう", r: "Gekijou", i: "Teater", c: "Kata Benda" },
+            { k: "コンサートホール", h: "こんさーとほーる", r: "Konsaato Hooru", i: "Aula Konser", c: "Kata Benda" },
+            { k: "スタジアム", h: "すたじあむ", r: "Sutajiamu", i: "Stadion", c: "Kata Benda" },
+            { k: "プール", h: "ぷーる", r: "Puuru", i: "Kolam Renang", c: "Kata Benda" },
+            { k: "ジム", h: "じむ", r: "Jimu", i: "Gym/Fitness Center", c: "Kata Benda" },
+            { k: "温泉", h: "おんせん", r: "Onsen", i: "Pemandian Air Panas", c: "Kata Benda" },
+            { k: "旅館", h: "りょかん", r: "Ryokan", i: "Penginapan Tradisional", c: "Kata Benda" },
+            { k: "ホテル", h: "ほてる", r: "Hoteru", i: "Hotel", c: "Kata Benda" },
+            { k: "旅", h: "たび", r: "Tabi", i: "Perjalanan", c: "Kata Benda" },
+            { k: "旅行", h: "りょこう", r: "Ryokou", i: "Liburan/Wisata", c: "Kata Benda" },
+            { k: "観光", h: "かんこう", r: "Kankou", i: "Pariwisata", c: "Kata Benda" },
+            { k: "名所", h: "めいしょ", r: "Meisho", i: "Tempat Terkenal", c: "Kata Benda" },
+            { k: "写真", h: "しゃしん", r: "Shashin", i: "Foto", c: "Kata Benda" },
+            { k: "カメラ", h: "かめら", r: "Kamera", i: "Kamera", c: "Kata Benda" },
+            { k: "ビデオ", h: "びでお", r: "Bideo", i: "Video", c: "Kata Benda" },
+            { k: "映画", h: "えいが", r: "Eiga", i: "Film", c: "Kata Benda" },
+            { k: "ドラマ", h: "どらま", r: "Dorama", i: "Drama", c: "Kata Benda" },
+            { k: "アニメ", h: "あにめ", r: "Anime", i: "Anime", c: "Kata Benda" },
+            { k: "漫画", h: "まんが", r: "Manga", i: "Komik", c: "Kata Benda" },
+            { k: "小説", h: "しょうせつ", r: "Shousetsu", i: "Novel", c: "Kata Benda" },
+            { k: "詩", h: "し", r: "Shi", i: "Puisi", c: "Kata Benda" },
+            { k: "歌", h: "うた", r: "Uta", i: "Lagu", c: "Kata Benda" },
+            { k: "歌手", h: "かしゅ", r: "Kashu", i: "Penyanyi", c: "Kata Benda" },
+            { k: "俳優", h: "はいゆう", r: "Haiyuu", i: "Aktor", c: "Kata Benda" },
+            { k: "女優", h: "じょゆう", r: "Joyuu", i: "Aktris", c: "Kata Benda" },
+            { k: "作家", h: "さっか", r: "Sakka", i: "Penulis", c: "Kata Benda" },
+            { k: "画家", h: "がか", r: "Gaka", i: "Pelukis", c: "Kata Benda" },
+            { k: "音楽家", h: "おんがくか", r: "Ongakuka", i: "Musisi", c: "Kata Benda" },
+            { k: "選手", h: "せんしゅ", r: "Senshu", i: "Atlet", c: "Kata Benda" },
+            { k: "監督", h: "かんとく", r: "Kantoku", i: "Pelatih/Direktur", c: "Kata Benda" },
+            { k: "社長", h: "しゃちょう", r: "Shachou", i: "Presiden Direktur", c: "Kata Benda" },
+            { k: "部長", h: "ぶちょう", r: "Bucho", i: "Manajer Departemen", c: "Kata Benda" },
+            { k: "課長", h: "かちょう", r: "Kacho", i: "Kepala Bagian", c: "Kata Benda" },
+            { k: "係長", h: "かかりちょう", r: "Kakaricho", i: "Kepala Seksi", c: "Kata Benda" },
+            { k: "店員", h: "てんいん", r: "Tenin", i: "Pramuniaga", c: "Kata Benda" },
+            { k: "客", h: "きゃく", r: "Kyaku", i: "Pelanggan", c: "Kata Benda" },
+            { k: "医者", h: "いしゃ", r: "Isha", i: "Dokter", c: "Kata Benda" },
+            { k: "看護師", h: "かんごし", r: "Kangoshi", i: "Perawat", c: "Kata Benda" },
+            { k: "警察官", h: "けいさつかん", r: "Keisatsukan", i: "Polisi", c: "Kata Benda" },
+            { k: "消防士", h: "しょうぼうし", r: "Shouboushi", i: "Pemadam Kebakaran", c: "Kata Benda" },
+            { k: "郵便局員", h: "ゆうびんきょくいん", r: "Yuubinkyokuin", i: "Petugas Pos", c: "Kata Benda" },
+            { k: "銀行員", h: "ぎんこういん", r: "Ginkouin", i: "Teller Bank", c: "Kata Benda" },
+            { k: "教師", h: "きょうし", r: "Kyoushi", i: "Guru", c: "Kata Benda" },
+            { k: "生徒", h: "せいと", r: "Seito", i: "Siswa", c: "Kata Benda" },
+            { k: "学生", h: "がくせい", r: "Gakusei", i: "Mahasiswa", c: "Kata Benda" },
+            { k: "会社員", h: "かいしゃいん", r: "Kaishain", i: "Karyawan", c: "Kata Benda" },
+            { k: "公務員", h: "こうむいん", r: "Koumuin", i: "Pegawai Negeri", c: "Kata Benda" },
+            { k: "自営業", h: "じえいぎょう", r: "Jieigyou", i: "Wirausaha", c: "Kata Benda" },
+            { k: "主婦", h: "しゅふ", r: "Shufu", i: "Ibu Rumah Tangga", c: "Kata Benda" },
+            { k: "パート", h: "ぱーと", r: "Paato", i: "Pekerja Paruh Waktu", c: "Kata Benda" },
+            { k: "アルバイト", h: "あるばいと", r: "Arubaito", i: "Pekerjaan Sampingan", c: "Kata Benda" },
+            { k: "無職", h: "むしょく", r: "Mushoku", i: "Pengangguran", c: "Kata Benda" },
+            { k: "定年", h: "ていねん", r: "Teinen", i: "Pensiun", c: "Kata Benda" },
+            { k: "年金", h: "ねんきん", r: "Nenkin", i: "Jaminan Hari Tua", c: "Kata Benda" },
+            { k: "給料", h: "きゅうりょう", r: "Kyuuryou", i: "Gaji", c: "Kata Benda" },
+            { k: "ボーナス", h: "ぼーなす", r: "Boonasu", i: "Tunjangan", c: "Kata Benda" },
+            { k: "残業", h: "ざんぎょう", r: "Zangyou", i: "Lembur", c: "Kata Benda" },
+            { k: "休み", h: "やすみ", r: "Yasumi", i: "Libur", c: "Kata Benda" },
+            { k: "夏休み", h: "なつやすみ", r: "Natsuyasumi", i: "Liburan Musim Panas", c: "Kata Benda" },
+            { k: "冬休み", h: "ふゆやすみ", r: "Fuyuyasumi", i: "Liburan Musim Dingin", c: "Kata Benda" },
+            { k: "ゴールデンウィーク", h: "ごーるでんうぃーく", r: "Goruden Wiiku", i: "Golden Week", c: "Kata Benda" },
+            { k: "お盆", h: "おぼん", r: "Obon", i: "Obon", c: "Kata Benda" },
+            { k: "お正月", h: "おしょうがつ", r: "Oshougatsu", i: "Tahun Baru", c: "Kata Benda" },
+            { k: "クリスマス", h: "くりすます", r: "Kurisumasu", i: "Natal", c: "Kata Benda" },
+            { k: "バレンタインデー", h: "ばれんたいんでー", r: "Barentain Dei", i: "Hari Valentine", c: "Kata Benda" },
+            { k: "ひな祭り", h: "ひなまつり", r: "Hinamatsuri", i: "Hari Doll Jepang", c: "Kata Benda" },
+            { k: "子供の日", h: "こどものひ", r: "Kodomo no Hi", i: "Hari Anak", c: "Kata Benda" },
+            { k: "文化の日", h: "ぶんかのひ", r: "Bunka no Hi", i: "Hari Budaya", c: "Kata Benda" },
+            { k: "勤労感謝の日", h: "きんろうかんしゃのひ", r: "Kinrou Kansha no Hi", i: "Hari Kerja", c: "Kata Benda" },
+            { k: "天皇誕生日", h: "てんのうたんじょうび", r: "Tennou Tanjoubi", i: "Ulang Tahun Kaisar", c: "Kata Benda" },
+            { k: "建国記念の日", h: "けんこくきねんのひ", r: "Kenkoku Kinen no Hi", i: "Hari Kemerdekaan", c: "Kata Benda" },
+            { k: "憲法記念日", h: "けんぽうきねんび", r: "Kenpou Kinenbi", i: "Hari Konstitusi", c: "Kata Benda" },
+            { k: "みどりの日", h: "みどりのひ", r: "Midori no Hi", i: "Hari Hijau", c: "Kata Benda" },
+            { k: "海の日", h: "うみのひ", r: "Umi no Hi", i: "Hari Laut", c: "Kata Benda" },
+            { k: "山の日", h: "やまのひ", r: "Yama no Hi", i: "Hari Gunung", c: "Kata Benda" },
+            { k: "スポーツの日", h: "すぽーつのひ", r: "Supootsu no Hi", i: "Hari Olahraga", c: "Kata Benda" },
+            { k: "春秋の彼岸", h: "しゅんじゅうのひがん", r: "Shunjuu no Higan", i: "Equinox", c: "Kata Benda" },
+            { k: "土用の丑", h: "どようのうし", r: "Doyou no Ushi", i: "Hari Anjing (Ushi no Hi)", c: "Kata Benda" },
+            { k: "節分", h: "せつぶん", r: "Setsubun", i: "Setsubun", c: "Kata Benda" },
+            { k: "大晦日", h: "おおみそか", r: "Oomisoka", i: "Malam Tahun Baru", c: "Kata Benda" },
+            { k: "除夜の鐘", h: "じょやのかね", r: "Joya no Kane", i: "Lonceng Tahun Baru", c: "Kata Benda" },
+            { k: "初詣", h: "はつもうで", r: "Hatsumoude", i: "Kuil Tahun Baru", c: "Kata Benda" },
+            { k: "お年玉", h: "おとしだま", r: "Otoshidama", i: "Angpao", c: "Kata Benda" },
+            { k: "門松", h: "かどまつ", r: "Kadomatsu", i: "Dekorasi Pintu", c: "Kata Benda" },
+            { k: "しめ縄", h: "しめなわ", r: "Shimenawa", i: "Tali Shimenawa", c: "Kata Benda" },
+            { k: "鏡餅", h: "かがみもち", r: "Kagamimochi", i: "Kue Mochi Tahun Baru", c: "Kata Benda" },
+            { k: "おせち料理", h: "おせちりょうり", r: "Osechi Ryouri", i: "Makanan Tahun Baru", c: "Kata Benda" },
+            { k: "雑煮", h: "ぞうに", r: "Zouni", i: "Sup Mochi", c: "Kata Benda" },
+            { k: "屠蘇", h: "とそ", r: "Toso", i: "Minuman Tahun Baru", c: "Kata Benda" },
+            { k: "破魔矢", h: "はまや", r: "Hamaya", i: "Panah Pemusnah Jahat", c: "Kata Benda" },
+            { k: "羽子板", h: "はごいた", r: "Hagoita", i: "Raket Hanetsuki", c: "Kata Benda" },
+            { k: "凧", h: "たこ", r: "Tako", i: "Layang-layang", c: "Kata Benda" },
+            { k: "独楽", h: "こま", r: "Koma", i: "Gasing", c: "Kata Benda" },
+            { k: "福袋", h: "ふくぶくろ", r: "Fukubukuro", i: "Kado Misteri", c: "Kata Benda" },
+            { k: "初夢", h: "はつゆめ", r: "Hatsuyume", i: "Mimpi Pertama", c: "Kata Benda" },
+            { k: "七草粥", h: "ななくさがゆ", r: "Nanakusagayu", i: "Bubur Tujuh Sayuran", c: "Kata Benda" }
+        ];
+
+        // --- STATE MANAGEMENT ---
+        let currentCategory = 'Semua';
+        let searchQuery = '';
+
+        // --- DOM ELEMENTS ---
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const mainApp = document.getElementById('main-app');
+        const searchInput = document.getElementById('searchInput');
+        const vocabListContainer = document.getElementById('vocabList');
+        const categoryContainer = document.getElementById('categoryContainer');
+        const catButtons = document.querySelectorAll('.cat-pill');
+
+        // --- FUNCTIONS ---
+
+        // 1. Transisi Masuk ke Aplikasi
+        function enterApp() {
+            welcomeScreen.style.opacity = '0';
+            setTimeout(() => {
+                welcomeScreen.classList.add('hidden');
+                mainApp.style.display = 'flex';
+                mainApp.classList.add('fade-in');
+                renderVocabList(); // Render awal
+            }, 400);
+        }
+
+        // 2. Render List Kosakata
+        function renderVocabList() {
+            vocabListContainer.innerHTML = '';
+            
+            // Filter Data
+            const filteredData = rawVocabulary.filter(item => {
+                const matchCategory = currentCategory === 'Semua' || item.c === currentCategory;
+                const queryLower = searchQuery.toLowerCase();
+                const matchSearch = 
+                    item.k.toLowerCase().includes(queryLower) || // Kanji/Jp
+                    item.h.toLowerCase().includes(queryLower) || // Hiragana
+                    item.r.toLowerCase().includes(queryLower) || // Romaji
+                    item.i.toLowerCase().includes(queryLower);   // Indo
+                
+                return matchCategory && matchSearch;
+            });
+
+            // Tampilkan Hasil atau Empty State
+            if (filteredData.length === 0) {
+                vocabListContainer.innerHTML = `
+                    <div class="empty-state">
+                        <h3>Tidak ditemukan</h3>
+                        <p>Coba kata kunci atau kategori lain.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Generate Cards
+            filteredData.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'vocab-card';
+                card.innerHTML = `
+                    <div class="vocab-main">
+                        <div>
+                            <span class="vocab-kanji jp-text">${item.k}</span>
+                            <div class="vocab-hiragana jp-text">${item.h}</div>
+                        </div>
+                    </div>
+                    <div class="vocab-romaji">${item.r}</div>
+                    <div class="vocab-meaning">${item.i}</div>
+                    <div class="vocab-tag">${item.c}</div>
+                `;
+                vocabListContainer.appendChild(card);
+            });
+        }
+
+        // 3. Filter Kategori
+        function filterCategory(category) {
+            currentCategory = category;
+            
+            // Update UI Tombol
+            catButtons.forEach(btn => {
+                if(btn.innerText === category) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            renderVocabList();
+        }
+
+        // 4. Event Listener Pencarian (Live Search)
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderVocabList();
+        });
+
+        // --- INIT ---
+        // Opsional: Render list kosong saat loading jika diperlukan, 
+        // tapi struktur di atas menunggu user klik tombol "Mulai Belajar".
+        
+    </script>
+</body>
+</html>
